@@ -1,0 +1,166 @@
+# This document includes aliases and functions used by bash
+# aliases are devided to 3 groups:
+# (1) basic system functions (cd, ls ...)
+# (2) system functions
+# (3) personal and 3rd-party apps
+
+
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -I'
+alias ln='ln -i'
+alias mkdir='mkdir -pv'
+alias mkd='mkdir -pv'
+alias rmd='rm -rfv'
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
+
+alias l='ls -hF --group-directories-first --color=auto'
+alias ls='ls -hF --group-directories-first --color=auto'
+alias ll='ls -lhF --group-directories-first --color=auto'
+alias la='ls -AlhF --group-directories-first --color=auto'
+alias lx='ls -lXBhF --group-directories-first --color=auto'       # sort by extension
+alias lk='ls -lShF --group-directories-first --color=auto'        # sort by size
+alias lt='ls -ltrhF --group-directories-first --color=auto'       # sort by date
+alias ld='ls -ldh --color=auto */'        # filter: directories
+# alias lf='ls -lhF | grep ...'
+
+## navigation (1)
+alias cd..='cd ..'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias bd='cd "$OLDPWD"'
+
+## directories (1)
+alias cdd='cd ~/Downloads/'
+alias cds='cd ~/.local/bin/scripts/'
+alias cdc='cd ~/.config/'
+alias cdb='cd ~/.local/bin/'
+alias benkhaled='cd ~/01_work/benkhaled/'
+alias ecom='cd ~/01_work/ecommerce/'
+
+alias apt-get='sudo apt-get'
+alias ninstall='sudo nala install'
+alias nremove='sudo nala remove'
+alias clock='sudo systemctl suspend && slock && exit'
+
+
+## system (2)
+alias ualias='nvim ~/.dotfiles/shell/bash_aliases'
+alias ubash='nvim ~/.bashrc'
+alias sbash='source ~/.bashrc'
+alias udot='bash ~/.dotfiles/setup.sh'
+alias ufont='fc-cache -fv'
+alias hgrep='history | grep'
+alias fhere='find . -name'             # search for file inside current directory
+alias fcount='find -type f | wc -l'    # count files inside current directory
+
+## Network controls (2)
+alias netup='sudo ifup wlp2s0'   # activate the network device
+alias netdw='sudo ifdown wlp2s0'   # deactivate the network device
+alias unetw='sudo nvim /etc/network/interfaces'   # edit the network files
+alias swnet='sudo sed -i "/wpa/ s/^/#/; s/^##//" /etc/network/interfaces && sudo systemctl restart networking.service'   # switch the network
+alias renet='sudo systemctl restart networking.service'   # reboot the network
+alias ipscn='sudo iw wlp2s0 scan | grep SSID'
+alias myip='echo -e "Pub ip: $(dig +short @resolver2.opendns.com myip.opendns.com)\nPvt ip: $(hostname -I)"'
+alias pubip='dig +short @resolver2.opendns.com myip.opendns.com | tee >(xclip -r -se c)'
+alias prvip='hostname -I | tee >(xclip -r -se c)'
+
+
+## vol and screenshots controls (3)
+alias vol='alsamixer'
+alias volof='amixer -q set Master toggle'
+alias volup='amixer -q set Master 5%+ unmute'
+alias voldw='amixer -q set Master 5%- unmute'
+alias psful="scrot -oz -q 100 /home/user/screenshots/S_%m%d_%H%M%S.png -e 'optipng $f'"
+alias psfre="scrot -s -ozf -q 100 /home/user/screenshots/S_%m%d_%H%M%S.png -e 'optipng $f'"
+alias pswin="scrot -uoz -d 1 -q 100 /home/user/screenshots/S_%m%d_%H%M%S.png -e 'optipng $f'"
+
+# clipboard shortcuts (3)
+alias c='xclip -i'
+alias v='xclip -o'
+
+## nvim (3)
+alias nv='nvim'
+alias nvs='nvim ~/.local/bin/scripts/'
+alias nvb='nvim ~/01_work/benkhaled/'
+alias unv='nvim ~/.config/nvim/'
+
+
+
+#>-------------------------------------------------------------------------------------------------<
+#>------------------------------------------ Functions --------------------------------------------<
+#>-------------------------------------------------------------------------------------------------<
+
+# copy files with progress bar source:
+alias cpp='rsync -r --info=progress2'  # Warning: interferes with a tool by the same name
+
+# change directory and list its contents
+cdl() {
+    cd "$1" && ls -lhF
+}
+
+
+# create a directory and navigate to it
+mdg() {
+    mkdir -p "$1" && cd "$1"
+}
+
+
+# copy files and navigate to the destination directory
+cpg() {
+    if [ -f "$1" ]; then
+        mkdir -p "${2%/*}"
+        cp "$1" "$2"
+        cd "${2%/*}"
+    elif [ -d "$1" ]; then
+        mkdir -p "$2"
+        cp -r "$1" "$2"
+        cd "$2"
+    else
+        echo "Error: invalid input [$1]"
+    fi
+}
+
+
+# move files and navigate to the destination directory
+mvg() {
+    if [ -f "$1" ]; then
+        mkdir -p "${2%/*}"
+        mv "$1" "$2"
+        cd "${2%/*}"
+    elif [ -d "$1" ]; then
+        mkdir -p "$2"
+        mv -r "$1" "$2"
+        cd "$2"
+    else
+        echo "Error: invalid input [$1]"
+    fi
+}
+
+
+# extract different types of archives
+extract() {
+    for archive in "$@"; do
+        if [ -f "$archive" ] ; then
+            case $archive in
+                *.tar.bz|*.tar.bz2)  tar xvjf   $archive  ;;
+                *.tbz|*.tbz2)        tar xvjf   $archive  ;;
+                *.tar.gz|*.tar.tgz)  tar xvzf   $archive  ;;
+                *.tar.xz|*.txz)      tar xJvf   $archive  ;;
+                *.tar)               tar xvf    $archive  ;;
+                *.bz2)               bunzip2    $archive  ;;
+                *.gz)                gunzip     $archive  ;;
+                *.rar)               unrar x    $archive  ;;
+                *.zip)               unzip      $archive  ;;
+                *.7z)                7z x       $archive  ;;
+                *.Z)                 uncompress $archive  ;;
+                *)                   echo "unrecognized archive type [$archive]" ;;
+            esac
+        else
+            echo "Error: invalid input [$archive]"
+        fi
+    done
+}
