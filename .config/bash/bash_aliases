@@ -48,7 +48,7 @@ alias clock='sudo systemctl suspend && slock && exit'
 
 
 ## system (2)
-alias ualias='nvim ~/.dotfiles/shell/bash_aliases'
+alias ualias='nvim ~/.config/bash/bash_aliases'
 alias ubash='nvim ~/.bashrc'
 alias sbash='source ~/.bashrc'
 alias udot='bash ~/.dotfiles/setup.sh'
@@ -88,6 +88,8 @@ alias nvs='nvim ~/.local/bin/scripts/'
 alias nvb='nvim ~/01_work/benkhaled/'
 alias unv='nvim ~/.config/nvim/'
 
+## 
+alias gitdot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 
 #>-------------------------------------------------------------------------------------------------<
